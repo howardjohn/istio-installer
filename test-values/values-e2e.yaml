@@ -1,6 +1,12 @@
 # This file overrides values for e2e testing.
 
 global:
+  istioNamespace: istio-system
+  configNamespace: istio-system
+  telemetryNamespace: istio-system
+  prometheusNamespace: istio-system
+  policyNamespace: istio-system
+
   proxy:
     concurrency: 0
     resources:
