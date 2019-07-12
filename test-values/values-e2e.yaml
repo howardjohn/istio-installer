@@ -77,3 +77,5 @@ mixer:
 
 sidecarInjectorWebhook:
   rewriteAppHTTPProbe: true
+  enableNamespacesByDefault: true
+
