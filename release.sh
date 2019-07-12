@@ -52,6 +52,7 @@ function make_demo() {
     # TODO we actually did need the citadel stuff in demo
     cp -r test/demo/* ${DEMO_DIR}
     DEMO_OPTS="-f test/demo/values.yaml"
+	bin/iop istio-system istio-citadel ${MANIFEST_DIR}/security/citadel -t ${DEMO_OPTS} > ${TMP}/release/demo/istio-citadel.yaml
 	bin/iop istio-system istio-config ${MANIFEST_DIR}/istio-control/istio-config -t ${DEMO_OPTS} > ${TMP}/release/demo/istio-config.yaml
 	bin/iop istio-system istio-discovery ${MANIFEST_DIR}/istio-control/istio-discovery -t ${DEMO_OPTS} > ${TMP}/release/demo/istio-discovery.yaml
 	bin/iop istio-system istio-autoinject ${MANIFEST_DIR}/istio-control/istio-autoinject -t ${DEMO_OPTS} > ${TMP}/release/demo/istio-autoinject.yaml
