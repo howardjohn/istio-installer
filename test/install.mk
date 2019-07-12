@@ -13,7 +13,7 @@ ENABLE_NAMESPACES_BY_DEFAULT ?= true
 # used directly with kubectl apply -f https://....
 # TODO: Add a local test - to check various things are in the right place (jsonpath or equivalent)
 # TODO: run a local etcd/apiserver and verify apiserver accepts the files
-run-build:  dep run-build-demo run-build-multi run-build-micro
+run-build: dep run-build-demo run-build-multi run-build-micro
 
 run-build-multi:
 
@@ -68,17 +68,7 @@ run-build-demo: dep
 
 
 run-lint:
-	helm lint istio-control/istio-discovery -f global.yaml
-	helm lint istio-control/istio-config -f global.yaml
-	helm lint istio-control/istio-autoinject -f global.yaml
-	helm lint istio-policy -f global.yaml
-	helm lint istio-telemetry/grafana -f global.yaml
-	helm lint istio-telemetry/mixer-telemetry -f global.yaml
-	helm lint istio-telemetry/prometheus -f global.yaml
-	helm lint istio-telemetry/kiali -f global.yaml
-	helm lint security/citadel -f global.yaml
-	helm lint gateways/istio-egress -f global.yaml
-	helm lint gateways/istio-ingress -f global.yaml
+	find . -name Chart.yaml -printf '%h\n' | xargs helm lint --values global.yaml
 
 
 install-full: ${TMPDIR} install-crds install-base install-ingress install-telemetry install-policy
