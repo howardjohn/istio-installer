@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: istio-citadel11-service-account
+  name: istio-citadel-service-account
   namespace: istio-system
 
   labels:
@@ -15,7 +15,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
-  name: istio-citadel11-istio-system
+  name: istio-citadel-istio-system
   labels:
     app: citadel
     release: istio-system-istio-system-security
@@ -35,16 +35,16 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
-  name: istio-citadel11-istio-system
+  name: istio-citadel-istio-system
   labels:
     release: istio-system-istio-system-security
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: istio-citadel11-istio-system
+  name: istio-citadel-istio-system
 subjects:
   - kind: ServiceAccount
-    name: istio-citadel11-service-account
+    name: istio-citadel-service-account
     namespace: istio-system
 
 ---
@@ -52,7 +52,7 @@ subjects:
 apiVersion: v1
 kind: Service
 metadata:
-  name: istio-citadel11
+  name: istio-citadel
   namespace: istio-system
   labels:
     app: citadel
@@ -76,7 +76,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: istio-citadel11
+  name: istio-citadel
   namespace: istio-system
   labels:
     app: citadel
@@ -97,7 +97,7 @@ spec:
       annotations:
         sidecar.istio.io/inject: "false"
     spec:
-      serviceAccountName: istio-citadel11-service-account
+      serviceAccountName: istio-citadel-service-account
       containers:
         - name: citadel
           image: "gcr.io/istio-release/citadel:master-latest-daily"
