@@ -11,6 +11,7 @@ TMP=$(mktemp -d /tmp/istio-build.XXXXX)
 MANIFEST_DIR="${OUT}/manifests"
 HELM_DIR="${OUT}/helm"
 DEMO_DIR="${OUT}/demo"
+KUSTOMIZE_DIR="${OUT}/kustomize"
 
 function make_manifests() {
     mkdir -p "${MANIFEST_DIR}"
@@ -49,7 +50,6 @@ function make_helm() {
 function make_demo() {
     mkdir -p ${DEMO_DIR}
     mkdir -p ${TMP}/release/demo/
-    # TODO we actually did need the citadel stuff in demo
     cp -r test/demo/* ${DEMO_DIR}
     DEMO_OPTS="-f test/demo/values.yaml"
 	bin/iop istio-system istio-citadel ${MANIFEST_DIR}/security/citadel -t ${DEMO_OPTS} > ${TMP}/release/demo/istio-citadel.yaml
@@ -65,9 +65,52 @@ function make_demo() {
 	cat ${TMP}/release/demo/*.yaml > ${DEMO_DIR}/k8s.yaml
 }
 
+function create_kustomize() {
+    namespace="$1"
+    name="$2"
+    template="$3"
+    mkdir -p ${KUSTOMIZE_DIR}/${template}
+
+    kustomize="apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- k8s.yaml
+- namespace.yaml
+"
+
+    namespaceYaml="apiVersion: v1
+kind: Namespace
+metadata:
+  name: $namespace
+  labels:
+    istio-injection: disabled
+"
+
+     echo "$kustomize" > ${KUSTOMIZE_DIR}/${template}/kustomization.yaml
+     echo "$namespaceYaml" > ${KUSTOMIZE_DIR}/${template}/namespace.yaml
+     bin/iop "$namespace" "$name" "${MANIFEST_DIR}/${template}" -t > "${KUSTOMIZE_DIR}/${template}/k8s.yaml"
+}
+
+function make_kustomize() {
+    mkdir -p ${KUSTOMIZE_DIR}
+	create_kustomize istio-system istio-citadel security/citadel
+	create_kustomize istio-control istio-config istio-control/istio-config
+	create_kustomize istio-control istio-discovery istio-control/istio-discovery
+	create_kustomize istio-control istio-autoinject istio-control/istio-autoinject
+	create_kustomize istio-ingress istio-ingress gateways/istio-ingress
+	create_kustomize istio-egress istio-egress gateways/istio-egress
+	create_kustomize istio-telemetry istio-telemetry istio-telemetry/mixer-telemetry
+	create_kustomize istio-telemetry istio-telemetry istio-telemetry/prometheus
+	create_kustomize istio-telemetry istio-telemetry istio-telemetry/grafana
+	create_kustomize istio-policy istio-policy istio-policy
+}
+
+
 make_manifests
 update_version 1.2.2 docker.io/istio
 make_demo
 make_helm
+make_kustomize
 
 tree "${OUT}" -d
